@@ -31,11 +31,11 @@ latent_dim = 100  # latent space dimension
 def build_generator(latent_dim):
     i = Input(shape=(latent_dim,))
     x = Dense(256, activation=LeakyReLU(alpha=0.2))(i)
-    x = BatchNormalization(momentum=0.7)(x)
+    x = BatchNormalization(momentum=0.8)(x)
     x = Dense(512, activation=LeakyReLU(alpha=0.2))(x)
-    x = BatchNormalization(momentum=0.7)(x)
+    x = BatchNormalization(momentum=0.8)(x)
     x = Dense(1024, activation=LeakyReLU(alpha=0.2))(x)
-    x = BatchNormalization(momentum=0.7)(x)
+    x = BatchNormalization(momentum=0.8)(x)
     x = Dense(D, activation='tanh')(x)
     model = Model(i, x)
     return model
@@ -45,8 +45,12 @@ def build_generator(latent_dim):
 
 def build_discriminator(img_size):
     i = Input(shape=(img_size),)
-    x = Dense(512, activation=LeakyReLU(alpha=0.2))(i)
-    x = Dense(256, activation=LeakyReLU(alpha=0.2))(x)
+    x = Dense(256, activation=LeakyReLU(alpha=0.2))(i)
+    x = Dropout(0.4)(x)
+    x = Dense(128, activation=LeakyReLU(alpha=0.2))(x)
+    x = Dropout(0.4)(x)
+    x = Dense(64, activation=LeakyReLU(alpha=0.2))(x)
+    x = Dropout(0.4)(x)
     x = Dense(1, activation="sigmoid")(x)
     model = Model(i, x)
     return model
@@ -80,7 +84,7 @@ combined_model.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
 # Training the GAN
 
 batch_size = 32
-epochs = 40000
+epochs = 30000
 sample_period = 200  # data is saved every time the sample period passes
 
 # Creating Batch Labels

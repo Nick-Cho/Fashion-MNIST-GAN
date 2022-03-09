@@ -45,12 +45,8 @@ def build_generator(latent_dim):
 
 def build_discriminator(img_size):
     i = Input(shape=(img_size),)
-    x = Dense(256, activation=LeakyReLU(alpha=0.2))(i)
-    x = Dropout(0.4)(x)
-    x = Dense(128, activation=LeakyReLU(alpha=0.2))(x)
-    x = Dropout(0.4)(x)
-    x = Dense(64, activation=LeakyReLU(alpha=0.2))(x)
-    x = Dropout(0.4)(x)
+    x = Dense(512, activation=LeakyReLU(alpha=0.2))(i)
+    x = Dense(256, activation=LeakyReLU(alpha=0.2))(x)
     x = Dense(1, activation="sigmoid")(x)
     model = Model(i, x)
     return model
@@ -76,10 +72,10 @@ discriminator.trainable = False
 # 1 means picture is fake
 fake_pred = discriminator(img)
 
-combined_model = Model(z, fake_pred)
+gan = Model(z, fake_pred)
 
 # Compile Combined model to adjust weights
-combined_model.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
+gan.compile(loss='binary_crossentropy', optimizer=Adam(0.0002, 0.5))
 
 # Training the GAN
 
@@ -134,10 +130,10 @@ for epoch in range(epochs):
 
     # Training generator
     noise = np.random.randn(batch_size, latent_dim)
-    g_loss = combined_model.train_on_batch(noise, ones)
+    g_loss = gan.train_on_batch(noise, ones)
 
     noise = np.random.randn(batch_size, latent_dim)
-    g_loss = combined_model.train_on_batch(noise, ones)
+    g_loss = gan.train_on_batch(noise, ones)
 
     # Save the losses
     d_losses.append(d_loss)
